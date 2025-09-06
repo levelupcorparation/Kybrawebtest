@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion Kybra avec Firebase</title>
+</head>
+<body>
+  <h1>Kybra - Connexion</h1>
+
+  <!-- Formulaire d'inscription -->
+  <h2>Inscription</h2>
+  <form id="signup-form">
+    <input type="email" id="signup-email" placeholder="Email" required />
+    <input type="password" id="signup-password" placeholder="Mot de passe" required />
+    <button type="submit">S'inscrire</button>
+  </form>
+
+  <!-- Formulaire de connexion -->
+  <h2>Connexion</h2>
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required />
+    <input type="password" id="login-password" placeholder="Mot de passe" required />
+    <button type="submit">Se connecter</button>
+  </form>
+
+  <button id="logout" style="display:none;">Se déconnecter</button>
+
+  <p id="status"></p>
+
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+    // Ton config Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbS1iBrL9Hkscvj8wermWwr9ZwIa1KNFE",
+      authDomain: "kybra-auth.firebaseapp.com",
+      projectId: "kybra-auth",
+      storageBucket: "kybra-auth.firebasestorage.app",
+      messagingSenderId: "478739816057",
+      appId: "1:478739816057:web:9799c9d11067d67a66bea8"
+    };
+
+    // Initialisation Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // --- Inscription ---
+    document.getElementById("signup-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Compte créé avec succès !");
+      } catch (err) {
+        alert("Erreur inscription : " + err.message);
+      }
+    });
+
+    // --- Connexion ---
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Connexion réussie !");
+      } catch (err) {
+        alert("Erreur connexion : " + err.message);
+      }
+    });
+
+    // --- Déconnexion ---
+    document.getElementById("logout").addEventListener("click", async () => {
+      await signOut(auth);
+      alert("Déconnecté !");
+    });
+
+    // --- Surveiller l'état de connexion ---
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("status").innerText = "Connecté en tant que " + user.email;
+        document.getElementById("logout").style.display = "inline-block";
+      } else {
+        document.getElementById("status").innerText = "Aucun utilisateur connecté";
+        document.getElementById("logout").style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
