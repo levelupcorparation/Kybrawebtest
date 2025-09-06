@@ -1,40 +1,136 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Connexion Kybra avec Firebase</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kybra Auth</title>
+  <style>
+    /* Fond avec dégradé animé */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #4facfe, #00f2fe, #43e97b, #38f9d7);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* Container */
+    .auth-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 360px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 26px;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: slideDown 1s ease-in-out;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #4facfe;
+      border-radius: 12px;
+      outline: none;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #00f2fe;
+      box-shadow: 0 0 8px #00f2fe;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .register-btn {
+      background: linear-gradient(90deg, #ff9966, #ff5e62);
+    }
+    .login-btn {
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Message de bienvenue */
+    .welcome {
+      font-size: 18px;
+      margin-top: 20px;
+      font-weight: 600;
+      color: #2c3e50;
+      display: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .success {
+      color: #27ae60;
+    }
+
+    .error {
+      color: #e74c3c;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    @keyframes slideDown {
+      from {transform: translateY(-30px); opacity: 0;}
+      to {transform: translateY(0); opacity: 1;}
+    }
+  </style>
 </head>
 <body>
-  <h1>Kybra - Connexion</h1>
+  <div class="auth-container">
+    <h1>Bienvenue sur Kybra 🚀</h1>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Mot de passe" required>
+    <button class="register-btn" onclick="registerUser()">S'inscrire</button>
+    <button class="login-btn" onclick="loginUser()">Se connecter</button>
+    <p class="welcome" id="welcomeMessage"></p>
+  </div>
 
-  <!-- Formulaire d'inscription -->
-  <h2>Inscription</h2>
-  <form id="signup-form">
-    <input type="email" id="signup-email" placeholder="Email" required />
-    <input type="password" id="signup-password" placeholder="Mot de passe" required />
-    <button type="submit">S'inscrire</button>
-  </form>
-
-  <!-- Formulaire de connexion -->
-  <h2>Connexion</h2>
-  <form id="login-form">
-    <input type="email" id="login-email" placeholder="Email" required />
-    <input type="password" id="login-password" placeholder="Mot de passe" required />
-    <button type="submit">Se connecter</button>
-  </form>
-
-  <button id="logout" style="display:none;">Se déconnecter</button>
-
-  <p id="status"></p>
-
+  <!-- Firebase -->
   <script type="module">
-    // Import Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-    // Ton config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBbS1iBrL9Hkscvj8wermWwr9ZwIa1KNFE",
       authDomain: "kybra-auth.firebaseapp.com",
@@ -44,50 +140,51 @@
       appId: "1:478739816057:web:9799c9d11067d67a66bea8"
     };
 
-    // Initialisation Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // --- Inscription ---
-    document.getElementById("signup-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("Compte créé avec succès !");
-      } catch (err) {
-        alert("Erreur inscription : " + err.message);
-      }
-    });
+    const welcomeMessage = document.getElementById("welcomeMessage");
 
-    // --- Connexion ---
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("login-email").value;
-      const password = document.getElementById("login-password").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Connexion réussie !");
-      } catch (err) {
-        alert("Erreur connexion : " + err.message);
-      }
-    });
+    // Inscription
+    window.registerUser = function() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          welcomeMessage.style.display = "block";
+          welcomeMessage.className = "welcome success";
+          welcomeMessage.innerText = "✅ Compte créé avec succès ! Bienvenue " + email;
+        })
+        .catch((error) => {
+          welcomeMessage.style.display = "block";
+          welcomeMessage.className = "welcome error";
+          welcomeMessage.innerText = "❌ Erreur : " + error.message;
+        });
+    }
 
-    // --- Déconnexion ---
-    document.getElementById("logout").addEventListener("click", async () => {
-      await signOut(auth);
-      alert("Déconnecté !");
-    });
+    // Connexion
+    window.loginUser = function() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          welcomeMessage.style.display = "block";
+          welcomeMessage.className = "welcome success";
+          welcomeMessage.innerText = "🎉 Vous êtes connecté ! Bonjour " + email;
+        })
+        .catch((error) => {
+          welcomeMessage.style.display = "block";
+          welcomeMessage.className = "welcome error";
+          welcomeMessage.innerText = "❌ Erreur : " + error.message;
+        });
+    }
 
-    // --- Surveiller l'état de connexion ---
+    // État utilisateur
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        document.getElementById("status").innerText = "Connecté en tant que " + user.email;
-        document.getElementById("logout").style.display = "inline-block";
-      } else {
-        document.getElementById("status").innerText = "Aucun utilisateur connecté";
-        document.getElementById("logout").style.display = "none";
+        welcomeMessage.style.display = "block";
+        welcomeMessage.className = "welcome success";
+        welcomeMessage.innerText = "👋 Déjà connecté : " + user.email;
       }
     });
   </script>
