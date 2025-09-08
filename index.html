@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kybra Auth</title>
   <style>
-    /* ---- STYLES GLOBAUX ---- */
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
@@ -19,8 +18,8 @@
       background: white;
       padding: 30px;
       border-radius: 20px;
-      box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
-      width: 350px;
+      box-shadow: 0px 8px 25px rgba(0,0,0,0.3);
+      width: 400px;
       text-align: center;
       animation: fadeIn 1s ease-in-out;
     }
@@ -80,37 +79,68 @@
       font-weight: bold;
       color: green;
     }
+    #profile {
+      margin-top: 15px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+      display: none;
+      text-align: center;
+    }
+    #profile img {
+      border-radius: 50%;
+      width: 60px;
+      margin-bottom: 10px;
+    }
+    #recaptcha-container {
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Kybra Auth 🔐</h2>
 
-    <!-- Formulaire Email / Password -->
-    <input type="email" id="email" placeholder="Adresse e-mail" required>
-    <input type="password" id="password" placeholder="Mot de passe" required>
-    
+    <!-- Email / Password -->
+    <input type="email" id="email" placeholder="Adresse e-mail">
+    <input type="password" id="password" placeholder="Mot de passe">
     <button onclick="signUp()">S'inscrire ✨</button>
     <button onclick="signIn()">Se connecter 🚀</button>
 
-    <!-- Connexion Google -->
+    <hr>
+
+    <!-- Google -->
     <button class="google-btn" onclick="signInWithGoogle()">
       <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
       Se connecter avec Google
     </button>
 
-    <!-- Message -->
+    <hr>
+
+    <!-- Téléphone -->
+    <input type="text" id="phone" placeholder="+50912345678">
+    <button id="sendCodeBtn">Envoyer le code SMS</button>
+    <input type="text" id="otp" placeholder="Code reçu par SMS">
+    <button id="verifyCodeBtn">Vérifier le code</button>
+
+    <div id="recaptcha-container"></div>
     <p id="message"></p>
+
+    <!-- Profil utilisateur -->
+    <div id="profile">
+      <img id="profile-pic" src="" alt="Photo profil">
+      <p id="profile-name"></p>
+      <p id="profile-email"></p>
+      <p id="profile-phone"></p>
+      <button onclick="signOut()">Se déconnecter 🔓</button>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
   <script type="module">
-    // Import Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } 
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber } 
       from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBbS1iBrL9Hkscvj8wermWwr9ZwIa1KNFE",
       authDomain: "kybra-auth.firebaseapp.com",
@@ -120,52 +150,78 @@
       appId: "1:478739816057:web:9799c9d11067d67a66bea8"
     };
 
-    // Init Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Inscription
+    // Email / Password
     window.signUp = function() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          document.getElementById("message").innerText = "🎉 Bienvenue, inscription réussie !";
-        })
-        .catch(err => {
-          document.getElementById("message").innerText = "⚠️ " + err.message;
-        });
+        .then(() => showMessage("🎉 Inscription réussie !"))
+        .catch(err => showMessage("❌ " + err.message));
     }
 
-    // Connexion
     window.signIn = function() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          document.getElementById("message").innerText = "✅ Connexion réussie, bienvenue !";
-        })
-        .catch(err => {
-          document.getElementById("message").innerText = "⚠️ " + err.message;
-        });
+        .then(() => showMessage("✅ Connexion réussie !"))
+        .catch(err => showMessage("❌ " + err.message));
     }
 
-    // Connexion Google
+    // Google
     window.signInWithGoogle = function() {
       signInWithPopup(auth, provider)
-        .then(result => {
-          document.getElementById("message").innerText = "✅ Connecté avec Google : " + result.user.displayName;
-        })
-        .catch(err => {
-          document.getElementById("message").innerText = "⚠️ " + err.message;
-        });
+        .then(result => showMessage("✅ Connecté avec Google : " + result.user.displayName))
+        .catch(err => showMessage("❌ " + err.message));
     }
 
-    // Détection utilisateur connecté
-    onAuthStateChanged(auth, (user) => {
+    // Téléphone
+    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', { size: 'invisible' }, auth);
+    let confirmationResult;
+
+    document.getElementById("sendCodeBtn").addEventListener("click", async () => {
+      const phoneNumber = document.getElementById("phone").value;
+      try {
+        confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+        showMessage("📲 Code SMS envoyé !");
+      } catch (err) {
+        showMessage("❌ " + err.message);
+      }
+    });
+
+    document.getElementById("verifyCodeBtn").addEventListener("click", async () => {
+      const otp = document.getElementById("otp").value;
+      try {
+        const result = await confirmationResult.confirm(otp);
+        showMessage("✅ Bienvenue " + result.user.phoneNumber);
+      } catch (err) {
+        showMessage("❌ " + err.message);
+      }
+    });
+
+    // Déconnexion
+    window.signOut = function() {
+      auth.signOut();
+      showMessage("🔓 Déconnecté !");
+      document.getElementById("profile").style.display = "none";
+    }
+
+    // Affichage profil et messages
+    function showMessage(msg) {
+      document.getElementById("message").innerText = msg;
+    }
+
+    onAuthStateChanged(auth, user => {
       if (user) {
-        document.getElementById("message").innerText = "👋 Bienvenue " + (user.displayName || user.email);
+        document.getElementById("profile").style.display = "block";
+        document.getElementById("profile-name").innerText = user.displayName || "Nom non défini";
+        document.getElementById("profile-email").innerText = user.email || "";
+        document.getElementById("profile-phone").innerText = user.phoneNumber || "";
+        document.getElementById("profile-pic").src = user.photoURL || "https://via.placeholder.com/60";
+        showMessage("👋 Bienvenue " + (user.displayName || user.email || user.phoneNumber));
       }
     });
   </script>
