@@ -1,229 +1,162 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kybra Auth</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0px 8px 25px rgba(0,0,0,0.3);
-      width: 400px;
-      text-align: center;
-      animation: fadeIn 1s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-    h2 {
-      margin-bottom: 20px;
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    input {
-      width: 90%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      outline: none;
-      transition: 0.3s;
-    }
-    input:focus {
-      border-color: #00c6ff;
-      box-shadow: 0 0 8px #00c6ff;
-    }
-    button {
-      width: 95%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    .google-btn {
-      background: white;
-      border: 1px solid #ccc;
-      color: #444;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .google-btn img {
-      width: 20px;
-    }
-    #message {
-      margin-top: 15px;
-      font-weight: bold;
-      color: green;
-    }
-    #profile {
-      margin-top: 15px;
-      border-top: 1px solid #ccc;
-      padding-top: 15px;
-      display: none;
-      text-align: center;
-    }
-    #profile img {
-      border-radius: 50%;
-      width: 60px;
-      margin-bottom: 10px;
-    }
-    #recaptcha-container {
-      margin: 10px 0;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kybra Market - Inscription & Avis</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f4f8; margin:0; padding:0;}
+  .container { max-width: 500px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+  h2 { text-align: center; color: #2c3e50; }
+  form { display: flex; flex-direction: column; }
+  input, select, textarea, button { margin: 10px 0; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+  button { background: #2ecc71; color: white; border: none; cursor: pointer; }
+  button:hover { background: #27ae60; }
+  .google-btn { background: #4285F4; margin-top: 0; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h2>Kybra Auth 🔐</h2>
 
-    <!-- Email / Password -->
-    <input type="email" id="email" placeholder="Adresse e-mail">
-    <input type="password" id="password" placeholder="Mot de passe">
-    <button onclick="signUp()">S'inscrire ✨</button>
-    <button onclick="signIn()">Se connecter 🚀</button>
+<div class="container">
+  <h2>Inscription Kybra</h2>
+  <form id="signupForm">
+    <input type="text" id="firstName" placeholder="Prénom" required>
+    <input type="text" id="lastName" placeholder="Nom" required>
+    <label>Date de naissance:</label>
+    <input type="date" id="dob" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Mot de passe" required>
+    <button type="submit">S'inscrire</button>
+  </form>
 
-    <hr>
+  <h2>Connexion</h2>
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+    <button type="submit">Connexion</button>
+  </form>
+  <button id="googleLogin" class="google-btn">Connexion avec Google</button>
 
-    <!-- Google -->
-    <button class="google-btn" onclick="signInWithGoogle()">
-      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
-      Se connecter avec Google
-    </button>
+  <h2>Laisser un avis</h2>
+  <form id="reviewForm">
+    <input type="text" id="reviewName" placeholder="Votre prénom" required>
+    <label>Note (1 à 5)</label>
+    <select id="reviewNote" required>
+      <option value="">Choisir</option>
+      <option value="1">1 ⭐</option>
+      <option value="2">2 ⭐⭐</option>
+      <option value="3">3 ⭐⭐⭐</option>
+      <option value="4">4 ⭐⭐⭐⭐</option>
+      <option value="5">5 ⭐⭐⭐⭐⭐</option>
+    </select>
+    <textarea id="reviewComment" placeholder="Votre avis..." required></textarea>
+    <button type="submit">Envoyer avis</button>
+  </form>
+</div>
 
-    <hr>
+<script type="module">
+  // Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-    <!-- Téléphone -->
-    <input type="text" id="phone" placeholder="+50912345678">
-    <button id="sendCodeBtn">Envoyer le code SMS</button>
-    <input type="text" id="otp" placeholder="Code reçu par SMS">
-    <button id="verifyCodeBtn">Vérifier le code</button>
+  // Config Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBbS1iBrL9Hkscvj8wermWwr9ZwIa1KNFE",
+    authDomain: "kybra-auth.firebaseapp.com",
+    projectId: "kybra-auth",
+    storageBucket: "kybra-auth.firebasestorage.app",
+    messagingSenderId: "478739816057",
+    appId: "1:478739816057:web:9799c9d11067d67a66bea8"
+  };
 
-    <div id="recaptcha-container"></div>
-    <p id="message"></p>
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
-    <!-- Profil utilisateur -->
-    <div id="profile">
-      <img id="profile-pic" src="" alt="Photo profil">
-      <p id="profile-name"></p>
-      <p id="profile-email"></p>
-      <p id="profile-phone"></p>
-      <button onclick="signOut()">Se déconnecter 🔓</button>
-    </div>
-  </div>
+  // Calcul âge
+  function calculateAge(dob) {
+    const birthDate = new Date(dob);
+    const diff = Date.now() - birthDate.getTime();
+    const ageDate = new Date(diff);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  }
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber } 
-      from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+  // Inscription
+  document.getElementById("signupForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const firstName = document.getElementById("firstName").value;
+    const lastName = document.getElementById("lastName").value;
+    const dob = document.getElementById("dob").value;
+    const age = calculateAge(dob);
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbS1iBrL9Hkscvj8wermWwr9ZwIa1KNFE",
-      authDomain: "kybra-auth.firebaseapp.com",
-      projectId: "kybra-auth",
-      storageBucket: "kybra-auth.firebasestorage.app",
-      messagingSenderId: "478739816057",
-      appId: "1:478739816057:web:9799c9d11067d67a66bea8"
-    };
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      await addDoc(collection(db, "users"), {
+        firstName, lastName, age, email
+      });
+      alert(`✅ Inscription réussie, bienvenue ${firstName} !`);
+      document.getElementById("signupForm").reset();
+    } catch(err) {
+      console.error(err);
+      alert("❌ Erreur lors de l'inscription : " + err.message);
+    }
+  });
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  // Connexion
+  document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("✅ Connexion réussie !");
+      document.getElementById("loginForm").reset();
+    } catch(err) {
+      console.error(err);
+      alert("❌ Erreur lors de la connexion : " + err.message);
+    }
+  });
+
+  // Connexion Google
+  document.getElementById("googleLogin").addEventListener("click", async ()=>{
     const provider = new GoogleAuthProvider();
-
-    // Email / Password
-    window.signUp = function() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(() => showMessage("🎉 Inscription réussie !"))
-        .catch(err => showMessage("❌ " + err.message));
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      await addDoc(collection(db, "users"), {
+        firstName: user.displayName || "Utilisateur Google",
+        email: user.email
+      });
+      alert(`✅ Bienvenue ${user.displayName || "Utilisateur"} !`);
+    } catch(err) {
+      console.error(err);
+      alert("❌ Erreur Google : " + err.message);
     }
+  });
 
-    window.signIn = function() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => showMessage("✅ Connexion réussie !"))
-        .catch(err => showMessage("❌ " + err.message));
+  // Avis
+  document.getElementById("reviewForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const firstName = document.getElementById("reviewName").value;
+    const note = document.getElementById("reviewNote").value;
+    const commentaire = document.getElementById("reviewComment").value;
+
+    try {
+      await addDoc(collection(db, "avis"), {
+        firstName, note, commentaire
+      });
+      alert(`Merci ${firstName} pour ton avis !`);
+      document.getElementById("reviewForm").reset();
+    } catch(err) {
+      console.error(err);
+      alert("❌ Erreur lors de l'envoi de l'avis : " + err.message);
     }
+  });
 
-    // Google
-    window.signInWithGoogle = function() {
-      signInWithPopup(auth, provider)
-        .then(result => showMessage("✅ Connecté avec Google : " + result.user.displayName))
-        .catch(err => showMessage("❌ " + err.message));
-    }
-
-    // Téléphone
-    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', { size: 'invisible' }, auth);
-    let confirmationResult;
-
-    document.getElementById("sendCodeBtn").addEventListener("click", async () => {
-      const phoneNumber = document.getElementById("phone").value;
-      try {
-        confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-        showMessage("📲 Code SMS envoyé !");
-      } catch (err) {
-        showMessage("❌ " + err.message);
-      }
-    });
-
-    document.getElementById("verifyCodeBtn").addEventListener("click", async () => {
-      const otp = document.getElementById("otp").value;
-      try {
-        const result = await confirmationResult.confirm(otp);
-        showMessage("✅ Bienvenue " + result.user.phoneNumber);
-      } catch (err) {
-        showMessage("❌ " + err.message);
-      }
-    });
-
-    // Déconnexion
-    window.signOut = function() {
-      auth.signOut();
-      showMessage("🔓 Déconnecté !");
-      document.getElementById("profile").style.display = "none";
-    }
-
-    // Affichage profil et messages
-    function showMessage(msg) {
-      document.getElementById("message").innerText = msg;
-    }
-
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        document.getElementById("profile").style.display = "block";
-        document.getElementById("profile-name").innerText = user.displayName || "Nom non défini";
-        document.getElementById("profile-email").innerText = user.email || "";
-        document.getElementById("profile-phone").innerText = user.phoneNumber || "";
-        document.getElementById("profile-pic").src = user.photoURL || "https://via.placeholder.com/60";
-        showMessage("👋 Bienvenue " + (user.displayName || user.email || user.phoneNumber));
-      }
-    });
-  </script>
+</script>
 </body>
 </html>
