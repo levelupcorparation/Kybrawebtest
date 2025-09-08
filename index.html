@@ -5,132 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kybra Auth</title>
   <style>
-    /* Fond avec dégradé animé */
+    /* ---- STYLES GLOBAUX ---- */
     body {
       margin: 0;
-      font-family: "Poppins", sans-serif;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(-45deg, #4facfe, #00f2fe, #43e97b, #38f9d7);
-      background-size: 400% 400%;
-      animation: gradientBG 12s ease infinite;
     }
-
-    @keyframes gradientBG {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-
-    /* Container */
-    .auth-container {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 40px;
+    .container {
+      background: white;
+      padding: 30px;
       border-radius: 20px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
+      width: 350px;
       text-align: center;
-      width: 360px;
       animation: fadeIn 1s ease-in-out;
     }
-
-    h1 {
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    h2 {
       margin-bottom: 20px;
-      font-size: 26px;
-      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      background: linear-gradient(to right, #4facfe, #00f2fe);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: slideDown 1s ease-in-out;
     }
-
     input {
-      width: 100%;
+      width: 90%;
       padding: 12px;
-      margin: 10px 0;
-      border: 2px solid #4facfe;
-      border-radius: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
       outline: none;
-      font-size: 16px;
       transition: 0.3s;
     }
-
     input:focus {
-      border-color: #00f2fe;
-      box-shadow: 0 0 8px #00f2fe;
+      border-color: #00c6ff;
+      box-shadow: 0 0 8px #00c6ff;
     }
-
     button {
-      width: 100%;
+      width: 95%;
       padding: 12px;
-      margin-top: 15px;
+      margin: 10px 0;
       border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
+      border-radius: 10px;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
       color: white;
+      font-size: 16px;
       cursor: pointer;
       transition: 0.3s;
     }
-
-    .register-btn {
-      background: linear-gradient(90deg, #ff9966, #ff5e62);
-    }
-    .login-btn {
-      background: linear-gradient(90deg, #4facfe, #00f2fe);
-    }
-
     button:hover {
       transform: scale(1.05);
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
-
-    /* Message de bienvenue */
-    .welcome {
-      font-size: 18px;
-      margin-top: 20px;
-      font-weight: 600;
-      color: #2c3e50;
-      display: none;
-      animation: fadeIn 1s ease-in-out;
+    .google-btn {
+      background: white;
+      border: 1px solid #ccc;
+      color: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
-
-    .success {
-      color: #27ae60;
+    .google-btn img {
+      width: 20px;
     }
-
-    .error {
-      color: #e74c3c;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
-    }
-
-    @keyframes slideDown {
-      from {transform: translateY(-30px); opacity: 0;}
-      to {transform: translateY(0); opacity: 1;}
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: green;
     }
   </style>
 </head>
 <body>
-  <div class="auth-container">
-    <h1>Bienvenue sur Kybra 🚀</h1>
-    <input type="email" id="email" placeholder="Email" required>
+  <div class="container">
+    <h2>Kybra Auth 🔐</h2>
+
+    <!-- Formulaire Email / Password -->
+    <input type="email" id="email" placeholder="Adresse e-mail" required>
     <input type="password" id="password" placeholder="Mot de passe" required>
-    <button class="register-btn" onclick="registerUser()">S'inscrire</button>
-    <button class="login-btn" onclick="loginUser()">Se connecter</button>
-    <p class="welcome" id="welcomeMessage"></p>
+    
+    <button onclick="signUp()">S'inscrire ✨</button>
+    <button onclick="signIn()">Se connecter 🚀</button>
+
+    <!-- Connexion Google -->
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+      Se connecter avec Google
+    </button>
+
+    <!-- Message -->
+    <p id="message"></p>
   </div>
 
-  <!-- Firebase -->
+  <!-- Firebase SDK -->
   <script type="module">
+    // Import Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBbS1iBrL9Hkscvj8wermWwr9ZwIa1KNFE",
       authDomain: "kybra-auth.firebaseapp.com",
@@ -140,51 +120,52 @@
       appId: "1:478739816057:web:9799c9d11067d67a66bea8"
     };
 
+    // Init Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
-    const welcomeMessage = document.getElementById("welcomeMessage");
+    const provider = new GoogleAuthProvider();
 
     // Inscription
-    window.registerUser = function() {
+    window.signUp = function() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          welcomeMessage.style.display = "block";
-          welcomeMessage.className = "welcome success";
-          welcomeMessage.innerText = "✅ Compte créé avec succès ! Bienvenue " + email;
+        .then(() => {
+          document.getElementById("message").innerText = "🎉 Bienvenue, inscription réussie !";
         })
-        .catch((error) => {
-          welcomeMessage.style.display = "block";
-          welcomeMessage.className = "welcome error";
-          welcomeMessage.innerText = "❌ Erreur : " + error.message;
+        .catch(err => {
+          document.getElementById("message").innerText = "⚠️ " + err.message;
         });
     }
 
     // Connexion
-    window.loginUser = function() {
+    window.signIn = function() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          welcomeMessage.style.display = "block";
-          welcomeMessage.className = "welcome success";
-          welcomeMessage.innerText = "🎉 Vous êtes connecté ! Bonjour " + email;
+        .then(() => {
+          document.getElementById("message").innerText = "✅ Connexion réussie, bienvenue !";
         })
-        .catch((error) => {
-          welcomeMessage.style.display = "block";
-          welcomeMessage.className = "welcome error";
-          welcomeMessage.innerText = "❌ Erreur : " + error.message;
+        .catch(err => {
+          document.getElementById("message").innerText = "⚠️ " + err.message;
         });
     }
 
-    // État utilisateur
+    // Connexion Google
+    window.signInWithGoogle = function() {
+      signInWithPopup(auth, provider)
+        .then(result => {
+          document.getElementById("message").innerText = "✅ Connecté avec Google : " + result.user.displayName;
+        })
+        .catch(err => {
+          document.getElementById("message").innerText = "⚠️ " + err.message;
+        });
+    }
+
+    // Détection utilisateur connecté
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        welcomeMessage.style.display = "block";
-        welcomeMessage.className = "welcome success";
-        welcomeMessage.innerText = "👋 Déjà connecté : " + user.email;
+        document.getElementById("message").innerText = "👋 Bienvenue " + (user.displayName || user.email);
       }
     });
   </script>
